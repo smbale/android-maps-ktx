@@ -76,6 +76,9 @@ private fun <E> SendChannel<E>.offerCatching(element: E): Boolean {
  * [GoogleMap.setOnCameraMoveListener] and [GoogleMap.setOnCameraMoveStartedListener].
  */
 @ExperimentalCoroutinesApi
+@Deprecated(
+    message = "Use cameraIdleEvents(), cameraMoveCanceledEvents(), cameraMoveEvents() or cameraMoveStartedEvents",
+)
 public fun GoogleMap.cameraEvents(): Flow<CameraEvent> =
     callbackFlow {
         setOnCameraIdleListener {
@@ -94,6 +97,67 @@ public fun GoogleMap.cameraEvents(): Flow<CameraEvent> =
             setOnCameraIdleListener(null)
             setOnCameraMoveCanceledListener(null)
             setOnCameraMoveListener(null)
+            setOnCameraMoveStartedListener(null)
+        }
+    }
+
+/**
+ * Returns a flow that emits when the camera is idle. Using this to observe camera idle events will
+ * override an existing listener (if any) to [GoogleMap.setOnCameraIdleListener].
+ */
+@ExperimentalCoroutinesApi
+public fun GoogleMap.cameraIdleEvents(): Flow<Unit> =
+    callbackFlow {
+        setOnCameraIdleListener {
+            offerCatching(Unit)
+        }
+        awaitClose{
+            setOnCameraIdleListener(null)
+        }
+    }
+
+/**
+ * Returns a flow that emits when a camera move is canceled. Using this to observe camera move
+ * cancel events will override an existing listener (if any) to
+ * [GoogleMap.setOnCameraMoveCanceledListener].
+ */
+@ExperimentalCoroutinesApi
+public fun GoogleMap.cameraMoveCanceledEvents(): Flow<Unit> =
+    callbackFlow {
+        setOnCameraMoveCanceledListener {
+            offerCatching(Unit)
+        }
+        awaitClose{
+            setOnCameraMoveCanceledListener(null)
+        }
+    }
+
+/**
+ * Returns a flow that emits when the camera moves. Using this to observe camera move events will
+ * override an existing listener (if any) to [GoogleMap.setOnCameraMoveListener].
+ */
+@ExperimentalCoroutinesApi
+public fun GoogleMap.cameraMoveEvents(): Flow<Unit> =
+    callbackFlow {
+        setOnCameraMoveListener {
+            offerCatching(Unit)
+        }
+        awaitClose{
+            setOnCameraMoveListener(null)
+        }
+    }
+
+/**
+ * Returns a flow that emits when a camera move started. Using this to observe camera move start
+ * events will override an existing listener (if any) to [GoogleMap.setOnCameraMoveStartedListener].
+ */
+@ExperimentalCoroutinesApi
+public fun GoogleMap.cameraMoveStartedEvents(): Flow<Unit> =
+    callbackFlow {
+        setOnCameraMoveStartedListener {
+            offerCatching(Unit)
+        }
+        awaitClose{
             setOnCameraMoveStartedListener(null)
         }
     }

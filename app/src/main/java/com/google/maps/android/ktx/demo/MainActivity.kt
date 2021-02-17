@@ -35,12 +35,9 @@ import com.google.maps.android.collections.PolylineManager
 import com.google.maps.android.data.Renderer.ImagesCache
 import com.google.maps.android.data.geojson.GeoJsonLineStringStyle
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle
-import com.google.maps.android.ktx.CameraIdleEvent
-import com.google.maps.android.ktx.CameraMoveCanceledEvent
-import com.google.maps.android.ktx.CameraMoveEvent
-import com.google.maps.android.ktx.CameraMoveStartedEvent
 import com.google.maps.android.ktx.awaitMap
-import com.google.maps.android.ktx.cameraEvents
+import com.google.maps.android.ktx.cameraIdleEvents
+import com.google.maps.android.ktx.cameraMoveStartedEvents
 import com.google.maps.android.ktx.demo.io.MyItemReader
 import com.google.maps.android.ktx.demo.model.MyItem
 import com.google.maps.android.ktx.utils.collection.addMarker
@@ -48,6 +45,7 @@ import com.google.maps.android.ktx.utils.geojson.geoJsonLayer
 import com.google.maps.android.ktx.utils.kml.kmlLayer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.json.JSONException
 
 /**
@@ -82,15 +80,14 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             showMapLayers(googleMap)
-            googleMap.cameraEvents().collect { event ->
-                when (event) {
-                    is CameraIdleEvent -> Log.d(TAG, "Camera is idle.")
-                    is CameraMoveCanceledEvent -> Log.d(TAG, "Camera move canceled")
-                    is CameraMoveEvent -> Log.d(TAG, "Camera moved")
-                    is CameraMoveStartedEvent -> Log.d(
-                        TAG,
-                        "Camera moved started. Reason: ${event.reason}"
-                    )
+            launch {
+                googleMap.cameraMoveStartedEvents().collect {
+                    Log.d(TAG, "Camera moved.")
+                }
+            }
+            launch {
+                googleMap.cameraIdleEvents().collect {
+                    Log.d(TAG, "Camera is idle.")
                 }
             }
         }
